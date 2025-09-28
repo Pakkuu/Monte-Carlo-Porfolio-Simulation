@@ -40,7 +40,7 @@ initial_portfolio_value = 10000
 for i in range(num_simulations):
     Z = np.random.normal(size=(num_days, len(weights))) # generate random stock moves
     L = np.linalg.cholesky(covMatrix)                   # add correlation factor between stocks
-    daily_returns = mean_matrix + np.inner(L, Z)
+    daily_returns = mean_matrix + L @ Z.T
     portfolio_simulations[:, i] = np.cumprod(np.inner(weights, daily_returns.T) + 1) * initial_portfolio_value
     
 plt.plot(portfolio_simulations)
