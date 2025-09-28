@@ -1,9 +1,11 @@
+# imports
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import datetime as dt
 import yfinance as yf
 
+# fetch stock data
 def get_data(stocks, start, end):
     stockData = yf.download(stocks, start=start, end=end, auto_adjust=True)
     stockData = stockData['Close']
@@ -12,6 +14,7 @@ def get_data(stocks, start, end):
     covMatrix = returns.cov()
     return meanReturns, covMatrix
 
+# Define parameters for simulation
 stocks = ['AAPL', 'MSFT', 'GOOGL', 'AMZN']
 endDate = dt.datetime.now()
 startDate = endDate - dt.timedelta(days=300)
@@ -23,7 +26,7 @@ weights = np.random.random(len(meanReturns))
 weights /= np.sum(weights)
 
 # Monte Carlo Simulation
-num_simulations = 10
+num_simulations = 100 # == (num portfolios)
 num_days = 252
 
 mean_matrix = np.full(shape=(num_days, len(weights)), fill_value=meanReturns)
@@ -35,8 +38,8 @@ print(portfolio_simulations)
 initial_portfolio_value = 10000
 
 for i in range(num_simulations):
-    Z = np.random.normal(size=(num_days, len(weights)))
-    L = np.linalg.cholesky(covMatrix)
+    Z = np.random.normal(size=(num_days, len(weights))) # generate random stock moves
+    L = np.linalg.cholesky(covMatrix)                   # add correlation factor between stocks
     daily_returns = mean_matrix + np.inner(L, Z)
     portfolio_simulations[:, i] = np.cumprod(np.inner(weights, daily_returns.T) + 1) * initial_portfolio_value
     
